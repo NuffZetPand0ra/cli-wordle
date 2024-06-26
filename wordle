@@ -1,0 +1,18 @@
+#!/usr/bin/env php
+<?php
+require_once __DIR__.'/vendor/autoload.php';
+
+use Nuffy\wordle\controllers\{WordController, GuessController};
+use Nuffy\wordle\models\Word;
+use Nuffy\wordle\WordleApp;
+
+use Symfony\Component\Console\Application;
+
+$app = new Application("Wordle");
+$command = new WordleApp("WordleApp");
+$app->add($command);
+
+$app->setDefaultCommand($command->getName());
+$app->run();
+
+exit;

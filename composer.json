@@ -1,0 +1,16 @@
+{
+    "require": {
+        "symfony/console": "^7.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nuffy\\wordle\\": "src"
+        }
+    },
+    "scripts": {
+        "test": "vendor\\bin\\phpunit --bootstrap vendor\\autoload.php --testdox tests"
+    }
+}
