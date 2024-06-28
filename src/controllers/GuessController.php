@@ -37,9 +37,8 @@ class GuessController
 
         // Next find all letters that are right, but in the wrong place.
         foreach($guess_array as $i=>$guessed_letter){
-            $letter_pos = array_search($guessed_letter, $answer_array);
             if(in_array($guessed_letter, $answer_array)){
-            // if($letter_pos !== false){
+                $letter_pos = array_search($guessed_letter, $answer_array);
                 $r->setLetter(new Letter($guessed_letter, 2), $i);
                 unset($answer_array[$letter_pos], $guess_array[$i]);
             }
