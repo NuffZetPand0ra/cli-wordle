@@ -6,7 +6,7 @@ use Nuffy\wordle\models\Word;
 
 class WordController
 {
-    private static array $dictionary = [];
+    private static array $dictionaries = [];
 
     /**
      * Gets dictionary. Singleton method that caches result of WordController::loadDictionary().
@@ -14,12 +14,12 @@ class WordController
      * @return array Dictionary of words
      * @throws WordleException {@see \Nuffy\wordle\controllers\WordController::loadDictionary()}
      */
-    public static function getDictionary(string|null $load_special = null) : array
+    public static function getDictionary(string $dictionary = "default") : array
     {
-        if(!count(self::$dictionary)){
-            self::loadDictionary($load_special);
+        if(!(isset(self::$dictionaries[$dictionary]) && count(self::$dictionaries[$dictionary]))){
+            self::loadDictionary($dictionary);
         }
-        return self::$dictionary;
+        return self::$dictionaries[$dictionary];
     }
 
     /**
@@ -28,20 +28,19 @@ class WordController
      * @return void 
      * @throws WordleException Throws \Nuffy\wordle\WordleException if dictionary cannot load.
      */
-    private static function loadDictionary(string|null $load_special = null) : void
+    private static function loadDictionary(string $dictionary = "default") : void
     {
-        switch($load_special){
+        switch($dictionary){
             case "pokemon":
-                $dict = "pokemon";
+                $filename_string = "pokemon";
                 break;
             default:
-                $dict = "default";
+                $filename_string = "default";
                 break;
         }
         try{
-            $dict = str_getcsv(file_get_contents(__DIR__.'/../../dictionaries/'.$dict.'.txt'), "\n");
-            $dict = array_map('strtoupper', $dict);
-            self::$dictionary = $dict;
+            self::$dictionaries[$dictionary] = str_getcsv(file_get_contents(__DIR__.'/../../dictionaries/'.$filename_string.'.txt'), "\n");
+            self::$dictionaries[$dictionary] = array_map('strtoupper', self::$dictionaries[$dictionary]);
         }catch(\Exception $e){
             throw new WordleException("Failed to load dictionary: ".$e->getMessage());
         }
@@ -53,9 +52,9 @@ class WordController
      * @return Word The random word.
      * @throws WordleException {@see \Nuffy\wordle\controllers\WordController::loadDictionary()}
      */
-    public static function getRandomWord(string|null $load_special = null) : Word
+    public static function getRandomWord(string $dictionary = "default") : Word
     {
-        return new Word(self::getDictionary($load_special)[array_rand(self::getDictionary())]);
+        return new Word(self::getDictionary($dictionary)[array_rand(self::getDictionary())]);
     }
 
     /**
@@ -65,7 +64,7 @@ class WordController
      * @return bool True if word is in dictionary.
      * @throws WordleException {@see \Nuffy\wordle\controllers\WordController::loadDictionary()}
      */
-    public static function wordInDictionary(Word $word, string|null $dictionary = null) : bool
+    public static function wordInDictionary(Word $word, string $dictionary = "default") : bool
     {
         return in_array($word->getWord(), self::getDictionary($dictionary));
     }
