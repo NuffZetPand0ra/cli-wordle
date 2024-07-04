@@ -1,6 +1,6 @@
 <?php
 namespace Nuffy\wordle\controllers;
-use Nuffy\wordle\models\{GuessResult, Letter, Word};
+use Nuffy\wordle\models\{GuessResult, GuessedLetter, Word};
 use Nuffy\wordle\WordleException;
 
 class GuessController
@@ -30,7 +30,7 @@ class GuessController
         // First find all letters with correct placement.
         foreach($guess_array as $i=>$guessed_letter){
             if($guessed_letter == $answer_array[$i]){
-                $r->setLetter(new Letter($guessed_letter, Letter::CORRECT_PLACEMENT), $i);
+                $r->setLetter(new GuessedLetter($guessed_letter, GuessedLetter::CORRECT_PLACEMENT), $i);
                 unset($answer_array[$i], $guess_array[$i]);
             }
         }
@@ -39,14 +39,14 @@ class GuessController
         foreach($guess_array as $i=>$guessed_letter){
             if(in_array($guessed_letter, $answer_array)){
                 $letter_pos = array_search($guessed_letter, $answer_array);
-                $r->setLetter(new Letter($guessed_letter, Letter::CORRECT_LETTER), $i);
+                $r->setLetter(new GuessedLetter($guessed_letter, GuessedLetter::CORRECT_LETTER), $i);
                 unset($answer_array[$letter_pos], $guess_array[$i]);
             }
         }
 
         // Add the remaining letters to result as absent.
         foreach($guess_array as $i=>$guessed_letter){
-            $r->setLetter(new Letter($guessed_letter, Letter::WRONG_LETTER), $i);
+            $r->setLetter(new GuessedLetter($guessed_letter, GuessedLetter::WRONG_LETTER), $i);
         }
         $r->sortLetters();
         return $r;

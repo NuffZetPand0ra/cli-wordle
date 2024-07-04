@@ -3,12 +3,13 @@ namespace Nuffy\wordle\models;
 
 use Nuffy\wordle\WordleException;
 
-class Player
+class Player implements \JsonSerializable
 {
     function __construct(
         public string $name,
         private int $guesses = 0,
-        private int $lives = 6
+        private int $lives = 6,
+        public array $history = []
     )
     {}
 
@@ -39,6 +40,10 @@ class Player
     {
         return $this->lives;
     }
+    public function setLives(int $lives) : void
+    {
+        $this->lives = $lives;
+    }
     public function getGuesses() : int
     {
         return $this->guesses;
@@ -46,5 +51,13 @@ class Player
     public function getGuessesLeft() : int
     {
         return $this->lives - $this->guesses;
+    }
+    public function addHistoryLine(GameHistoryLine $line) : void
+    {
+        $this->history[] = $line;
+    }
+    public function jsonSerialize() : mixed
+    {
+        return ["name"=>$this->name, "history"=>$this->history];
     }
 }

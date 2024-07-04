@@ -2,7 +2,7 @@
 namespace Nuffy\wordle\controllers;
 
 use Nuffy\wordle\WordleException;
-use Nuffy\wordle\models\Word;
+use Nuffy\wordle\models\{Dictionary, FilteredDictionary, Word};
 
 class WordController
 {
@@ -11,12 +11,14 @@ class WordController
     /**
      * Gets dictionary. Singleton method that caches result of WordController::loadDictionary().
      * 
-     * @return array Dictionary of words
+     * @return Dictionary Dictionary of words
      * @throws WordleException {@see \Nuffy\wordle\controllers\WordController::loadDictionary()}
      */
-    public static function getDictionary(string $dictionary = "default") : array
+    public static function getDictionary(string $dictionary = "default", bool $force_reload = false) : Dictionary
     {
-        if(!(isset(self::$dictionaries[$dictionary]) && count(self::$dictionaries[$dictionary]))){
+        if($force_reload){
+            self::loadDictionary($dictionary);
+        }elseif(!(isset(self::$dictionaries[$dictionary]) && count(self::$dictionaries[$dictionary]->getWords()))){
             self::loadDictionary($dictionary);
         }
         return self::$dictionaries[$dictionary];
@@ -28,22 +30,42 @@ class WordController
      * @return void 
      * @throws WordleException Throws \Nuffy\wordle\WordleException if dictionary cannot load.
      */
-    private static function loadDictionary(string $dictionary = "default") : void
+    private static function loadDictionary(string $dictionary_title = "default") : Dictionary
     {
-        switch($dictionary){
+        switch($dictionary_title){
             case "pokemon":
                 $filename_string = "pokemon";
+                break;
+            case 'danish':
+                $filename_string = "danish";
+                break;
+            case 'exopi':
+                $filename_string = "exopi";
                 break;
             default:
                 $filename_string = "default";
                 break;
         }
         try{
-            self::$dictionaries[$dictionary] = str_getcsv(file_get_contents(__DIR__.'/../../dictionaries/'.$filename_string.'.txt'), "\n");
-            self::$dictionaries[$dictionary] = array_map('strtoupper', self::$dictionaries[$dictionary]);
+            $dictionary_obj = new Dictionary($dictionary_title);
+            $dictionary_array = str_getcsv(file_get_contents(__DIR__.'/../../dictionaries/'.$filename_string.'.txt'), "\n");
+            $dictionary_array = array_map('strtoupper', $dictionary_array);
+            $dictionary_obj->addWords($dictionary_array);
+            self::$dictionaries[$dictionary_title] = $dictionary_obj;
         }catch(\Exception $e){
             throw new WordleException("Failed to load dictionary: ".$e->getMessage());
         }
+        return self::$dictionaries[$dictionary_title];
+    }
+
+    public static function getFilteredDictionary(string|callable $filter = '/^\\w{5}$/', string $dictionary_title = "default") : FilteredDictionary
+    {
+        $filtered_dictionary = new FilteredDictionary($dictionary_title);
+        $unfiltered = self::getDictionary($dictionary_title, true);
+        $filtered_dictionary->addWords($unfiltered->getWords());
+        $filtered_dictionary->filter($filter);
+        self::$dictionaries[$dictionary_title] = $filtered_dictionary;
+        return self::$dictionaries[$dictionary_title];
     }
 
     /**
@@ -54,7 +76,7 @@ class WordController
      */
     public static function getRandomWord(string $dictionary = "default") : Word
     {
-        return new Word(self::getDictionary($dictionary)[array_rand(self::getDictionary())]);
+        return self::getDictionary($dictionary)->getRandomWord();
     }
 
     /**
@@ -66,7 +88,7 @@ class WordController
      */
     public static function wordInDictionary(Word $word, string $dictionary = "default") : bool
     {
-        return in_array($word->getWord(), self::getDictionary($dictionary));
+        return self::getDictionary($dictionary)->containsWord($word);
     }
 
 }

@@ -2,7 +2,7 @@
 namespace Nuffy\wordle\models;
 
 use Nuffy\wordle\WordleException;
-use Nuffy\wordle\models\Letter;
+use Nuffy\wordle\models\GuessedLetter;
 
 use function PHPUnit\Framework\isNull;
 
@@ -13,7 +13,7 @@ class GuessResult
     /**
      * Creates the GuessResult object.
      * 
-     * @param Letter[] $letters 
+     * @param GuessedLetter[] $letters 
      * @param bool $success 
      * @return void 
      */
@@ -26,10 +26,10 @@ class GuessResult
     /**
      * Add a new letter to this result.
      * 
-     * @param Letter $letter 
+     * @param GuessedLetter $letter 
      * @return void 
      */
-    public function setLetter(Letter $letter, int $position = null) : void
+    public function setLetter(GuessedLetter $letter, int $position = null) : void
     {
         if(!is_null($position)){
             $this->letters[$position] = $letter;
@@ -42,14 +42,14 @@ class GuessResult
     /**
      * Get the letters in the guess result.
      * 
-     * @return Letter[] 
+     * @return GuessedLetter[] 
      */
     public function getLetters() : array
     {
         if($this->has_unsorted_letters) $this->sortLetters();
         return $this->letters;
     }
-    public function getLetter(int $index) : Letter
+    public function getLetter(int $index) : GuessedLetter
     {
         $letters = $this->getLetters();
         if(!isset($letters[$index])){

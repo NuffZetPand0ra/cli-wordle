@@ -1,10 +1,11 @@
 <?php
 use \PHPUnit\Framework\TestCase;
-use Nuffy\wordle\models\Player;
+use Nuffy\wordle\models\{Player, GameHistoryLine};
+use Nuffy\wordle\controllers\PlayerController;
 
 class PlayerTest extends TestCase
 {
-    function testCanCreatePlayer(){
+    function testCanCreatePlayerModel(){
         $p = new Player("Steve");
         $this->assertInstanceOf(Player::class, $p);
         $this->assertEquals("Steve", $p->name);
@@ -32,5 +33,35 @@ class PlayerTest extends TestCase
 
         $p->addGuess();
         $this->assertFalse($p->isAlive());
+    }
+    function testCanLoadPlayerData(){
+        $player = PlayerController::loadPlayer("Esben");
+        $this->assertInstanceOf(Player::class, $player);
+        $this->assertEquals("Esben", $player->getName());
+    }
+    function testCanSavePlayerData(){
+        $player_name = "Demo player";
+        $player = new Player($player_name);
+        PlayerController::savePlayer($player);
+
+        $loaded_player = PlayerController::loadPlayer($player_name);
+        $this->assertEquals($player_name, $loaded_player->getName());
+    }
+    function testCanDeletePlayerData(){
+        $player_name = "Deleteable Player";
+        $player = PlayerController::getPlayer($player_name);
+        PlayerController::savePlayer($player);
+
+        $this->assertTrue(PlayerController::playerExists($player_name));
+
+        PlayerController::deletePlayer($player);
+        $this->assertFalse(PlayerController::playerExists($player_name));
+    }
+    function testCanAddHistoryLineToPlayer(){
+        $player_name = "Esben";
+        $player = PlayerController::getPlayer($player_name);
+        $player->addHistoryLine(new GameHistoryLine(new DateTime(), true, 6, 3));
+        PlayerController::savePlayer($player);
+        $this->assertInstanceOf(Player::class, $player);
     }
 }

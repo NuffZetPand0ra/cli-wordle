@@ -9,7 +9,7 @@ use Nuffy\wordle\WordleApp;
 use Symfony\Component\Console\Application;
 
 $app = new Application("Wordle");
-$command = new WordleApp("WordleApp");
+$command = new WordleApp("WordleApp", '0.8');
 $app->add($command);
 
 $app->setDefaultCommand($command->getName());

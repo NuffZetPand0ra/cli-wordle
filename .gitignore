@@ -1,4 +1,6 @@
 vendor/
-composer.lock
 .vscode
 *.docx
+*.pptx
+tests/latest.txt
+.*
