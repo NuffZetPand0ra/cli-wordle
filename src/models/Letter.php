@@ -1,6 +1,8 @@
 <?php
 namespace Nuffy\wordle\models;
 
+use Nuffy\wordle\WordleException;
+
 class Letter
 {
     /**
@@ -11,7 +13,9 @@ class Letter
      */
     public function __construct(
         public string $symbol
-    ){}
+    ){
+        if(strlen($this->symbol) !== 1) throw new WordleException("Letter object can only contain one word");
+    }
 
     public function __toString()
     {
