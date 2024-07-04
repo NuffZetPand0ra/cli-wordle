@@ -100,7 +100,6 @@ class WordleApp extends Command
                     throw new WordleException("\"".$to_validate."\" does not have ".strlen($answer)." letters.");
                 }
                 if(!$this->dictionary->containsWord(new Word($to_validate))){
-                // if(!WordController::wordInDictionary(new Word($to_validate))){
                     throw new WordleException("The word \"".$to_validate."\" does not appear in my dictionary. Please try a proper word.");
                 }
                 return $to_validate;
@@ -119,7 +118,6 @@ class WordleApp extends Command
             }
 
             $this->player->addGuess();
-            // $this->player->addHistoryLine(new GameHistoryLine(new DateTime(), false, $this->player->getGuesses(), $this->player->getLives()()));
             $this->results[] = $guess_result;
 
             if(GuessController::verifyGuess($answer, $guess)){
