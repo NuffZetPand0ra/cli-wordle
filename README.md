@@ -29,4 +29,8 @@ Navigate your terminal to `vendor/crazywhalecc/static-php-cli`.
 Unix: `bin/setup-runtime`  
 Windows: `bin\setup-runtime.ps`
 
-Navigate back to the roote folder, and you're good to go! Just remember to use `vendor/crazywhalecc/static-php-cli/runtime/php` instead of the "normal" `php` program in the usage examples.
+Navigate back to the roote folder, and you're good to go! Just use to use 
+```bash
+vendor/crazywhalecc/static-php-cli/runtime/php
+```
+instead of the "normal" `php` program in the usage examples.
