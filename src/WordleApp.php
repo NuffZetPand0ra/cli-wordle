@@ -39,7 +39,7 @@ class WordleApp extends Command
                 InputOption::VALUE_REQUIRED,
                 'Which dictionary should we load?',
                 'default',
-                ['default', 'danish', 'pokemon']
+                ['default', 'danish', 'pokemon', 'exopi']
             )
             ->addOption(
                 'wordlength',
@@ -47,6 +47,13 @@ class WordleApp extends Command
                 InputOption::VALUE_REQUIRED,
                 'Do you want to limit words to a certain length?',
                 false
+            )
+            ->addOption(
+                'lives',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Amount of lives (guesses) you want',
+                6
             )
         ;
     }
@@ -67,6 +74,11 @@ class WordleApp extends Command
         $name_question = new Question("Please enter your name: ");
         $name = $question_helper->ask($this->input, $this->output, $name_question);
         $this->player = PlayerController::getPlayer($name);
+
+        if(is_numeric($input->getOption('lives'))){
+            $this->player->setLives($input->getOption('lives'));
+        }
+
         if(is_numeric($input->getOption("wordlength"))){
             $dictionary = WordController::getFilteredDictionary(function(Word $word) use ($input) {
                 return strlen($word) == $input->getOption("wordlength");
@@ -74,6 +86,7 @@ class WordleApp extends Command
         }else{
             $dictionary = WordController::getDictionary($input->getOption("dictionary"));
         }
+
         $this->dictionary = $dictionary;
         $answer = $this->dictionary->getRandomWord();
         $possible_letters = $this->dictionary->getPossibleLetters();
@@ -118,6 +131,7 @@ class WordleApp extends Command
             }
 
             $this->player->addGuess();
+            // $this->player->addHistoryLine(new GameHistoryLine(new DateTime(), false, $this->player->getGuesses(), $this->player->getLives()()));
             $this->results[] = $guess_result;
 
             if(GuessController::verifyGuess($answer, $guess)){

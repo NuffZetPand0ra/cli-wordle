@@ -9,6 +9,7 @@ class Player implements \JsonSerializable
         public string $name,
         private int $guesses = 0,
         private int $lives = 6,
+        private ?GameHistoryLine $current_game = null,
         public array $history = []
     )
     {}
@@ -58,6 +59,7 @@ class Player implements \JsonSerializable
     }
     public function jsonSerialize() : mixed
     {
-        return ["name"=>$this->name, "history"=>$this->history];
+        $r = ["name"=>$this->name, "history"=>$this->history];
+        return $r;
     }
 }
