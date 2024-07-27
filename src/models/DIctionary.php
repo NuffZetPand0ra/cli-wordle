@@ -3,7 +3,7 @@ namespace Nuffy\wordle\models;
 
 use Nuffy\wordle\WordleException;
 
-class Dictionary implements \Iterator
+class Dictionary implements \Iterator, \Countable
 {
     /**
      * List of words in this dictionary
@@ -119,5 +119,10 @@ class Dictionary implements \Iterator
         }
         sort($letters);
         return $letters;
+    }
+
+    public function count() : int
+    {
+        return count($this->words);
     }
 }
