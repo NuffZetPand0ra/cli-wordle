@@ -30,31 +30,33 @@ class WordController
      * @return void 
      * @throws WordleException Throws \Nuffy\wordle\WordleException if dictionary cannot load.
      */
-    private static function loadDictionary(string $dictionary_title = "default") : Dictionary
+    private static function loadDictionary(string $dictionary_title = "default", ?int $word_length = null) : Dictionary
     {
-        switch($dictionary_title){
-            case "pokemon":
-                $filename_string = "pokemon";
-                break;
-            case 'danish':
-                $filename_string = "danish";
-                break;
-            case 'exopi':
-                $filename_string = "exopi";
-                break;
-            default:
-                $filename_string = "default";
-                break;
+        $pdo = DBController::getPDO();
+        $params = [];
+        $sql = "
+            SELECT DISTINCT(w.word) FROM words w
+            JOIN dictionaries d on w.dictionary_id = d.id
+            WHERE d.name = :dictionary_title
+            AND (
+                word NOT LIKE '%æ%'
+                AND word NOT LIKE '%ø%'
+                AND word NOT LIKE '%å%'
+            )
+        ";
+        
+        if(!is_null($word_length)){
+            $sql .= " AND LENGTH(w.word) = :word_length";
+            $params[":word_length"] = $word_length;
         }
-        try{
-            $dictionary_obj = new Dictionary($dictionary_title);
-            $dictionary_array = str_getcsv(file_get_contents(__DIR__.'/../../dictionaries/'.$filename_string.'.txt'), "\n");
-            $dictionary_array = array_map('strtoupper', $dictionary_array);
-            $dictionary_obj->addWords($dictionary_array);
-            self::$dictionaries[$dictionary_title] = $dictionary_obj;
-        }catch(\Exception $e){
-            throw new WordleException("Failed to load dictionary: ".$e->getMessage());
-        }
+
+        $stmnt = $pdo->prepare($sql);
+        $params[":dictionary_title"] = $dictionary_title;
+
+        $stmnt->execute($params);
+        $results = $stmnt->fetchAll(\PDO::FETCH_COLUMN);
+        
+        self::$dictionaries[$dictionary_title] = (new Dictionary($dictionary_title))->addWords($results);
         return self::$dictionaries[$dictionary_title];
     }
 
