@@ -1,6 +1,2 @@
 vendor/
-.vscode
-*.docx
-*.pptx
-tests/latest.txt
 .*

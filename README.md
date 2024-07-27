@@ -6,7 +6,7 @@ If you dont have PHP installed on your system this project contains an easy meth
 
 ## Usage
 
-```
+```bash
 php wordle [options]
 ```
 
@@ -29,8 +29,8 @@ Navigate your terminal to `vendor/crazywhalecc/static-php-cli`.
 Unix: `bin/setup-runtime`  
 Windows: `bin\setup-runtime.ps`
 
-Navigate back to the roote folder, and you're good to go! Just use to use 
+Navigate back to the root folder, and you're good to go! Just use 
 ```bash
 vendor/crazywhalecc/static-php-cli/runtime/php
 ```
-instead of the "normal" `php` program in the usage examples.
+instead of the "normal" `php` program in the usage example.
