@@ -3,40 +3,41 @@ namespace Nuffy\wordle\controllers;
 
 use Nuffy\wordle\WordleException;
 use Nuffy\wordle\models\{Dictionary, FilteredDictionary, Word};
+use PDOException;
 
 class WordController
 {
     private static array $dictionaries = [];
 
     /**
-     * Gets dictionary. Singleton method that caches result of WordController::loadDictionary().
-     * 
-     * @return Dictionary Dictionary of words
-     * @throws WordleException {@see \Nuffy\wordle\controllers\WordController::loadDictionary()}
+     * @param string $dictionary Which dictionary to get ("default", "danish" or "pokemon")
+     * @param bool $force_reload Force a reload of the dictionary.
+     * @param null|int $word_length String length of words being loaded. Null loads words of all lengths. Defaults to null.
+     * @return Dictionary 
+     * @throws PDOException 
      */
-    public static function getDictionary(string $dictionary = "default", bool $force_reload = false) : Dictionary
+    public static function getDictionary(string $dictionary = "default", bool $force_reload = false, ?int $word_length = null) : Dictionary
     {
         if($force_reload){
-            self::loadDictionary($dictionary);
+            self::loadDictionary($dictionary, $word_length);
         }elseif(!(isset(self::$dictionaries[$dictionary]) && count(self::$dictionaries[$dictionary]->getWords()))){
-            self::loadDictionary($dictionary);
+            self::loadDictionary($dictionary, $word_length);
         }
         return self::$dictionaries[$dictionary];
     }
 
     /**
-     * Loads dictionary from system into memory.
-     * 
-     * @return void 
-     * @throws WordleException Throws \Nuffy\wordle\WordleException if dictionary cannot load.
+     * @param string $dictionary_title Dictionary to load
+     * @param null|int $word_length String length of words being loaded. Null loads words of all lengths. Defaults to null.
+     * @return Dictionary 
+     * @throws WordleException 
      */
     private static function loadDictionary(string $dictionary_title = "default", ?int $word_length = null) : Dictionary
     {
-        $pdo = DBController::getPDO();
         $params = [];
         $sql = "
             SELECT DISTINCT(w.word) FROM words w
-            JOIN dictionaries d on w.dictionary_id = d.id
+            JOIN dictionaries d ON w.dictionary_id = d.id
             WHERE d.name = :dictionary_title
             AND (
                 word NOT LIKE '%æ%'
@@ -50,11 +51,16 @@ class WordController
             $params[":word_length"] = $word_length;
         }
 
-        $stmnt = $pdo->prepare($sql);
-        $params[":dictionary_title"] = $dictionary_title;
+        try{
+            $pdo = DBController::getPDO();
+            $stmnt = $pdo->prepare($sql);
+            $params[":dictionary_title"] = $dictionary_title;
 
-        $stmnt->execute($params);
-        $results = $stmnt->fetchAll(\PDO::FETCH_COLUMN);
+            $stmnt->execute($params);
+            $results = $stmnt->fetchAll(\PDO::FETCH_COLUMN);
+        }catch(\PDOException $e){
+            throw new WordleException("Could not load dictionary due to a database error: ".$e->getMessage(), previous: $e);
+        }
         
         self::$dictionaries[$dictionary_title] = (new Dictionary($dictionary_title))->addWords($results);
         return self::$dictionaries[$dictionary_title];

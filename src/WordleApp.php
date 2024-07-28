@@ -79,13 +79,7 @@ class WordleApp extends Command
             $this->player->setLives($input->getOption('lives'));
         }
 
-        if(is_numeric($input->getOption("wordlength"))){
-            $dictionary = WordController::getFilteredDictionary(function(Word $word) use ($input) {
-                return strlen($word) == $input->getOption("wordlength");
-            }, $input->getOption("dictionary"));
-        }else{
-            $dictionary = WordController::getDictionary($input->getOption("dictionary"));
-        }
+        $dictionary = WordController::getDictionary($input->getOption("dictionary"), word_length: $input->getOption("wordlength"));
 
         $this->dictionary = $dictionary;
         $answer = $this->dictionary->getRandomWord();
