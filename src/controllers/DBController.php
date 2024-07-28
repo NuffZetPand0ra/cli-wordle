@@ -5,7 +5,7 @@ use PDO;
 class DBController
 {
     private static ?PDO $pdo = null;
-    private static string $db_dir =  __DIR__.'\..\..\data\wordle.sqlite';
+    private static string $db_dir =  __DIR__.'\..\..\data\words.sqlite';
 
     public static function getPDO() : PDO
     {
