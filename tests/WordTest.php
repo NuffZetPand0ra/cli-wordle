@@ -22,7 +22,7 @@ class WordTest extends TestCase
         $this->assertTrue(WordController::wordInDictionary($word, "pokemon"));
     }
 
-    public function testCanLoadFilteredDIctionary(){
+    public function testCanLoadFilteredDictionary(){
         $dict = WordController::getFilteredDictionary(function(Word $word){
             return $word == new Word("ekans");
         }, "pokemon");
