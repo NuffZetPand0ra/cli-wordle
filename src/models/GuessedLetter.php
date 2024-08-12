@@ -3,9 +3,6 @@ namespace Nuffy\wordle\models;
 
 class GuessedLetter extends Letter
 {
-    const CORRECT_PLACEMENT = 3;
-    const CORRECT_LETTER = 2;
-    const WRONG_LETTER = 1;
     /**
      * Creates GuessedLetter object.
      * 
@@ -15,6 +12,6 @@ class GuessedLetter extends Letter
      */
     public function __construct(
         public string $symbol,
-        public int $status
+        public LetterStatus $status
     ){}
 }

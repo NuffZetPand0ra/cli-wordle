@@ -3,7 +3,7 @@ namespace Nuffy\wordle;
 
 use DateTime;
 use Nuffy\wordle\DictionaryFilter;
-use Nuffy\wordle\models\{GuessResult, Word, GuessedLetter, Player, Dictionary, GameHistoryLine};
+use Nuffy\wordle\models\{GuessResult, Word, GuessedLetter, Player, Dictionary, GameHistoryLine, LetterStatus};
 use Nuffy\wordle\controllers\{GuessController, PlayerController, WordController};
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\{InputInterface, InputOption};
@@ -117,7 +117,7 @@ class WordleApp extends Command
             $guess_result = GuessController::makeGuess($answer, $guess);
 
             foreach($guess_result->getLetters() as $guessed_letter){
-                if($guessed_letter->status == GuessedLetter::WRONG_LETTER && in_array((string)$guessed_letter, $possible_letters)){
+                if($guessed_letter->status == LetterStatus::WRONG_LETTER && in_array((string)$guessed_letter, $possible_letters)){
                     unset($possible_letters[array_search((string)$guessed_letter, $possible_letters)]);
                 }elseif(!in_array((string)$guessed_letter, $verified_letters)){
                     $verified_letters[] = $guessed_letter;
@@ -172,13 +172,13 @@ class WordleApp extends Command
             if(isset($this->results[$i])){
                 foreach($this->results[$i]->getLetters() as $letter){
                     switch($letter->status){
-                        case GuessedLetter::CORRECT_PLACEMENT:
+                        case LetterStatus::CORRECT_PLACEMENT:
                             $line .= "<correctplace> ".$letter->symbol.' </> ';
                             break;
-                        case GuessedLetter::CORRECT_LETTER:
+                        case LetterStatus::CORRECT_LETTER:
                             $line .= "<correctletter> ".$letter->symbol.' </> ';
                             break;
-                        case GuessedLetter::WRONG_LETTER:
+                        case LetterStatus::WRONG_LETTER:
                             $line .= "<wrongletter> ".$letter->symbol.' </> ';
                             break;
                     }
